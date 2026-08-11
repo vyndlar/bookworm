@@ -9,6 +9,8 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 
+use crate::utils::library;
+
 mod content;
 
 fn main() -> Result<()> {
@@ -16,6 +18,7 @@ fn main() -> Result<()> {
     let terminal = ratatui::init();
     let result = run(terminal);
     ratatui::restore();
+    let lib = library::load();
     result
 }
 

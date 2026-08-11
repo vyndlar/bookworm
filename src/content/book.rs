@@ -1,6 +1,8 @@
+use serde::Deserialize;
+
 use super::genre::Genre;
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct Book {
     total_pages: i16,
     author: String,

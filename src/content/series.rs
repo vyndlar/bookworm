@@ -1,6 +1,8 @@
+use serde::Deserialize;
+
 use super::book::Book;
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct Series {
     title: String,
     books: Vec<Book>,
