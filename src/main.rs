@@ -6,13 +6,16 @@ use color_eyre::Result;
 use crossterm::event::{self, Event};
 use ratatui::{
     DefaultTerminal, Frame,
-    layout::{Constraint, Direction::Vertical, Layout},
-    style::{Color, Stylize},
+    layout::{Constraint, Direction::Vertical, Layout, Rect},
+    style::{Color, Style, Stylize},
     symbols::block,
-    widgets::{Block, Borders, List, Paragraph},
+    widgets::{Block, Borders, List, Paragraph, Row, TableState},
 };
 
-use crate::utils::{app::App, library};
+use crate::{
+    content::{book::Book, series::Series},
+    utils::{app::App, library},
+};
 
 mod content;
 
@@ -89,6 +92,9 @@ fn render(frame: &mut Frame, app: &App) {
         left_panel[1],
     );
 
+    // -------------- //
+    // main book view //
+    // -------------- //
     frame.render_widget(
         Paragraph::new("Turn ts into a table").block(
             Block::new()
@@ -109,4 +115,32 @@ fn render(frame: &mut Frame, app: &App) {
         ),
         main[2],
     );
+}
+
+fn render_book_table(
+    frame: &mut Frame,
+    app: App,
+    area: Rect,
+    table_state: &mut TableState,
+    series: &Series,
+) {
+    let header = Row::new(["Title", "Author", "Pages", "isOwned"])
+        .style(Style::new().bold())
+        .bottom_margin(1);
+
+    let mut rows = vec![];
+    match app.library.series.get(app.selected_series) {
+        // returns a reference to the series
+        Some(s) => {
+            for book in &s.books {
+                rows.push(Row::new([
+                    book.title.clone(),
+                    book.author.to_string(),
+                    book.total_pages.to_string(),
+                    book.is_owned.to_string(),
+                ]));
+            }
+        }
+        None => rows.push(Row::new(["err", "err", "err", "err"])),
+    }
 }
