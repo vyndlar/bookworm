@@ -1,5 +1,7 @@
 mod utils;
 
+use std::iter::once;
+
 use color_eyre::Result;
 use crossterm::event::{self, Event};
 use ratatui::{
@@ -50,7 +52,7 @@ fn render(frame: &mut Frame, app: &App) {
 
     let left_panel = Layout::default()
         .direction(Vertical)
-        .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
+        .constraints(vec![Constraint::Percentage(75), Constraint::Percentage(25)])
         .split(main[0]);
 
     let series_list: Vec<&str> = app
@@ -58,10 +60,12 @@ fn render(frame: &mut Frame, app: &App) {
         .series
         .iter()
         .map(|s| s.title.as_str())
+        .chain(once("Standalone Books"))
         .collect();
 
+    // renders the series names on the left panel
     frame.render_widget(
-        List::new(series_list).block(
+        List::new(series_list).cyan().block(
             Block::new()
                 .bold()
                 .fg(Color::Blue)
@@ -71,21 +75,38 @@ fn render(frame: &mut Frame, app: &App) {
         left_panel[0],
     );
 
+    // TODO: Stats block on the left panel
     frame.render_widget(
-        Block::new()
-            .bold()
-            .fg(Color::Blue)
-            .borders(Borders::ALL)
-            .title("Standalone Books"),
+        List::new(vec!["Total Books: -", "Foo: Bar"]) // give some sample data
+            .cyan()
+            .block(
+                Block::new()
+                    .bold()
+                    .fg(Color::Blue)
+                    .borders(Borders::ALL)
+                    .title("Library Stats"),
+            ),
         left_panel[1],
     );
 
     frame.render_widget(
-        Paragraph::new("Second").block(Block::new().bold().fg(Color::Green).borders(Borders::ALL)),
+        Paragraph::new("Turn ts into a table").block(
+            Block::new()
+                .title("Books")
+                .bold()
+                .fg(Color::Blue)
+                .borders(Borders::ALL),
+        ),
         main[1],
     );
     frame.render_widget(
-        Paragraph::new("Third").block(Block::new().bold().fg(Color::Green).borders(Borders::ALL)),
+        Paragraph::new("Options (change title, author, genre, etc)").block(
+            Block::new()
+                .title("Options")
+                .bold()
+                .fg(Color::Blue)
+                .borders(Borders::ALL),
+        ),
         main[2],
     );
 }
