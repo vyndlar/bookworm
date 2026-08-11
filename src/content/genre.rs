@@ -3,32 +3,32 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub enum Genre {
     // fiction
-    FANTASY,
-    HISTORICAL_FICTION,
-    HORROR,
-    MYSTERY,
-    ROMANCE,
-    SCIENCE_FICTION,
-    ACTION,
-    ADVENTURE,
-    DYSTOPIAN,
+    Fantasy,
+    HistoricalFiction,
+    Horror,
+    Mystery,
+    Romance,
+    ScienceFiction,
+    Action,
+    Adventure,
+    Dystopian,
 
     // nonfiction
-    AUTOBIOGRAPHY,
-    BIOGRAPHY,
-    COOKBOOK,
-    RELIGIOUS,
-    EDUCATION,
-    COMPUTERS,
-    LANGUAGES,
-    ESSAY,
-    MEMOIR,
-    SELF_HELP,
-    TRAVEL,
-    TRUE_CRIME,
+    Autobiography,
+    Biography,
+    Cookbook,
+    Religious,
+    Education,
+    Computers,
+    Languages,
+    Essay,
+    Memoir,
+    SelfHelp,
+    Travel,
+    TrueCrime,
 
     // other
-    POETRY,
-    CLASSIC,
-    DEFAULT, // default option (obviously)
+    Poetry,
+    Classic,
+    Default, // default option (obviously)
 }

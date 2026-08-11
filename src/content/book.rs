@@ -4,12 +4,12 @@ use super::genre::Genre;
 
 #[derive(Debug, Deserialize)]
 pub struct Book {
-    total_pages: i16,
-    author: String,
-    title: String,
-    times_read: i8,
-    genre: Genre,
-    is_owned: bool, // do you own the book or is it borrowed?
+    pub total_pages: i16,
+    pub author: String,
+    pub title: String,
+    pub times_read: i8,
+    pub genre: Genre,
+    pub is_owned: bool, // do you own the book or is it borrowed?
 }
 
 impl Book {
@@ -19,7 +19,7 @@ impl Book {
             author: String::from(""),
             title: String::from(""),
             times_read: 0,
-            genre: Genre::DEFAULT,
+            genre: Genre::Default,
             is_owned: false,
         }
     }
