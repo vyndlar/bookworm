@@ -4,7 +4,7 @@ use color_eyre::Result;
 use crossterm::event::{self, Event};
 use ratatui::{
     DefaultTerminal, Frame,
-    layout::{Constraint, Layout},
+    layout::{Constraint, Direction::Vertical, Layout},
     style::{Color, Stylize},
     widgets::{Block, Borders, Paragraph},
 };
@@ -37,7 +37,7 @@ fn run(mut term: DefaultTerminal, app: &App) -> Result<()> {
 }
 
 fn render(frame: &mut Frame, app: &App) {
-    let lo = Layout::default()
+    let main = Layout::default()
         .direction(ratatui::layout::Direction::Horizontal)
         .margin(1)
         .constraints(vec![
@@ -47,16 +47,42 @@ fn render(frame: &mut Frame, app: &App) {
         ])
         .split(frame.area());
 
+    let left_panel = Layout::default()
+        .direction(Vertical)
+        .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
+        .split(main[0]);
+
+    let series_list: Vec<&str> = app
+        .library
+        .series
+        .iter()
+        .map(|s| s.title.as_str())
+        .collect();
+
     frame.render_widget(
-        Paragraph::new("Series").block(Block::new().bold().fg(Color::Blue).borders(Borders::ALL)),
-        lo[0],
+        List::new().block::new()
+            .bold()
+            .fg(Color::Blue)
+            .borders(Borders::ALL)
+            .title("Series"),
+        left_panel[0],
     );
+
+    frame.render_widget(
+        Block::new()
+            .bold()
+            .fg(Color::Blue)
+            .borders(Borders::ALL)
+            .title("Standalone Books"),
+        left_panel[1],
+    );
+
     frame.render_widget(
         Paragraph::new("Second").block(Block::new().bold().fg(Color::Green).borders(Borders::ALL)),
-        lo[1],
+        main[1],
     );
     frame.render_widget(
         Paragraph::new("Third").block(Block::new().bold().fg(Color::Green).borders(Borders::ALL)),
-        lo[2],
+        main[2],
     );
 }

@@ -2,7 +2,7 @@
 title = "Some Series"
 
 [[series.books]]
-genre = "FANTASY"
+genre = "Fantasy"
 total_pages = 112
 author = "John Doe"
 title = "Foo"
@@ -10,7 +10,7 @@ times_read = 1
 is_owned = false
 
 [[series.books]]
-genre = "FANTASY"
+genre = "Fantasy"
 total_pages = 112
 author = "John Doe"
 title = "Bar"
@@ -18,33 +18,7 @@ times_read = 1
 is_owned = false
 
 [[series.books]]
-genre = "FANTASY"
-total_pages = 112
-author = "John Doe"
-title = "FooBar"
-times_read = 1
-is_owned = false
-[[series]]
-title = "Some Series"
-
-[[series.books]]
-genre = "FANTASY"
-total_pages = 112
-author = "John Doe"
-title = "Foo"
-times_read = 1
-is_owned = false
-
-[[series.books]]
-genre = "FANTASY"
-total_pages = 112
-author = "John Doe"
-title = "Bar"
-times_read = 1
-is_owned = false
-
-[[series.books]]
-genre = "FANTASY"
+genre = "Fantasy"
 total_pages = 11
 author = "John Doe"
 title = "FooBar"
@@ -52,7 +26,7 @@ times_read = 1
 is_owned = false
 
 [[standalone_books]]
-genre = "FANTASY"
+genre = "Fantasy"
 total_pages = 11
 author = "John Doe"
 title = "FooBar"
