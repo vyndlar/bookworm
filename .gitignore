@@ -8,3 +8,5 @@ target
 **/mutants.out*/
 
 rustc-ice-*.txt
+
+./src/library.toml
