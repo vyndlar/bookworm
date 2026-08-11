@@ -1,4 +1,4 @@
-use super::{genre::Genre, series::Series};
+use super::genre::Genre;
 
 #[derive(Debug)]
 pub struct Book {
@@ -7,6 +7,7 @@ pub struct Book {
     title: String,
     times_read: i8,
     genre: Genre,
+    is_owned: bool, // do you own the book or is it borrowed?
 }
 
 impl Book {
@@ -17,6 +18,7 @@ impl Book {
             title: String::from(""),
             times_read: 0,
             genre: Genre::DEFAULT,
+            is_owned: false,
         }
     }
 }

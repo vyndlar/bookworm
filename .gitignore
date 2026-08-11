@@ -9,4 +9,4 @@ target
 
 rustc-ice-*.txt
 
-./src/library.toml
+src/library.toml
