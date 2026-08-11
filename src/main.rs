@@ -6,7 +6,8 @@ use ratatui::{
     DefaultTerminal, Frame,
     layout::{Constraint, Direction::Vertical, Layout},
     style::{Color, Stylize},
-    widgets::{Block, Borders, Paragraph},
+    symbols::block,
+    widgets::{Block, Borders, List, Paragraph},
 };
 
 use crate::utils::{app::App, library};
@@ -60,11 +61,13 @@ fn render(frame: &mut Frame, app: &App) {
         .collect();
 
     frame.render_widget(
-        List::new().block::new()
-            .bold()
-            .fg(Color::Blue)
-            .borders(Borders::ALL)
-            .title("Series"),
+        List::new(series_list).block(
+            Block::new()
+                .bold()
+                .fg(Color::Blue)
+                .borders(Borders::ALL)
+                .title("Series"),
+        ),
         left_panel[0],
     );
 
