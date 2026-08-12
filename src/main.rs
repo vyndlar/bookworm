@@ -8,14 +8,10 @@ use ratatui::{
     DefaultTerminal, Frame,
     layout::{Constraint, Direction::Vertical, Layout, Rect},
     style::{Color, Style, Stylize},
-    symbols::block,
-    widgets::{Block, Borders, List, Paragraph, Row, TableState},
+    widgets::{Block, Borders, List, Paragraph, Row, Table, TableState},
 };
 
-use crate::{
-    content::{book::Book, series::Series},
-    utils::{app::App, library},
-};
+use crate::utils::{app::App, library};
 
 mod content;
 
@@ -26,23 +22,27 @@ fn main() -> Result<()> {
 
     color_eyre::install()?;
 
+    let mut table_state = TableState::default();
+    table_state.select_first();
+    table_state.select_first_column();
+
     let terminal = ratatui::init();
-    let result = run(terminal, &app);
+    let result = run(terminal, &app, &mut table_state);
     ratatui::restore();
 
     result
 }
 
-fn run(mut term: DefaultTerminal, app: &App) -> Result<()> {
+fn run(mut term: DefaultTerminal, app: &App, table_state: &mut TableState) -> Result<()> {
     loop {
-        term.draw(|f| render(f, app))?; // render frame while passing in app state
+        term.draw(|f| render(f, app, table_state))?; // render frame while passing in app state
         if matches!(event::read()?, Event::Key(_)) {
             break Ok(());
         }
     }
 }
 
-fn render(frame: &mut Frame, app: &App) {
+fn render(frame: &mut Frame, app: &App, table_state: &mut TableState) {
     let main = Layout::default()
         .direction(ratatui::layout::Direction::Horizontal)
         .margin(1)
@@ -95,16 +95,17 @@ fn render(frame: &mut Frame, app: &App) {
     // -------------- //
     // main book view //
     // -------------- //
-    frame.render_widget(
-        Paragraph::new("Turn ts into a table").block(
-            Block::new()
-                .title("Books")
-                .bold()
-                .fg(Color::Blue)
-                .borders(Borders::ALL),
-        ),
-        main[1],
-    );
+    // frame.render_widget(
+    //     Paragraph::new("Turn ts into a table").block(
+    //         Block::new()
+    //             .title("Books")
+    //             .bold()
+    //             .fg(Color::Blue)
+    //             .borders(Borders::ALL),
+    //     ),
+    //     main[1],
+    // );
+    render_book_table(frame, &app, main[1], table_state);
     frame.render_widget(
         Paragraph::new("Options (change title, author, genre, etc)").block(
             Block::new()
@@ -117,13 +118,7 @@ fn render(frame: &mut Frame, app: &App) {
     );
 }
 
-fn render_book_table(
-    frame: &mut Frame,
-    app: App,
-    area: Rect,
-    table_state: &mut TableState,
-    series: &Series,
-) {
+fn render_book_table(frame: &mut Frame, app: &App, area: Rect, table_state: &mut TableState) {
     let header = Row::new(["Title", "Author", "Pages", "isOwned"])
         .style(Style::new().bold())
         .bottom_margin(1);
@@ -143,4 +138,26 @@ fn render_book_table(
         }
         None => rows.push(Row::new(["err", "err", "err", "err"])),
     }
+
+    let widths = [
+        Constraint::Fill(2),
+        Constraint::Fill(1),
+        Constraint::Fill(1),
+    ];
+
+    let table = Table::new(rows, widths)
+        .header(header)
+        .column_spacing(1)
+        .style(Color::White)
+        .row_highlight_style(Style::new().on_black().bold())
+        .column_highlight_style(Color::Green)
+        .highlight_symbol("> ")
+        .block(
+            Block::new()
+                .title("Books")
+                .bold()
+                .fg(Color::Blue)
+                .borders(Borders::ALL),
+        );
+    frame.render_stateful_widget(table, area, table_state);
 }
