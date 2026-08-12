@@ -3,7 +3,7 @@ mod utils;
 use std::iter::once;
 
 use color_eyre::Result;
-use crossterm::event::{self, Event, KeyCode};
+use crossterm::event::{self, KeyCode};
 use ratatui::{
     DefaultTerminal, Frame,
     layout::{Constraint, Direction::Vertical, Layout, Rect},
@@ -18,7 +18,7 @@ mod content;
 fn main() -> Result<()> {
     // TODO: Show error message in UI
     let lib = library::load()?;
-    let app = App::new(lib);
+    let mut app = App::new(lib);
 
     color_eyre::install()?;
 
@@ -27,13 +27,13 @@ fn main() -> Result<()> {
     table_state.select_first_column();
 
     let terminal = ratatui::init();
-    let result = run(terminal, &app, &mut table_state);
+    let result = run(terminal, &mut app, &mut table_state);
     ratatui::restore();
 
     result
 }
 
-fn run(mut term: DefaultTerminal, app: &App, table_state: &mut TableState) -> Result<()> {
+fn run(mut term: DefaultTerminal, app: &mut App, table_state: &mut TableState) -> Result<()> {
     loop {
         term.draw(|f| render(f, app, table_state))?; // render frame while passing in app state
 
@@ -53,7 +53,7 @@ fn run(mut term: DefaultTerminal, app: &App, table_state: &mut TableState) -> Re
     }
 }
 
-fn render(frame: &mut Frame, app: &App, table_state: &mut TableState) {
+fn render(frame: &mut Frame, app: &mut App, table_state: &mut TableState) {
     let main = Layout::default()
         .direction(ratatui::layout::Direction::Horizontal)
         .margin(1)
@@ -106,11 +106,12 @@ fn render(frame: &mut Frame, app: &App, table_state: &mut TableState) {
     // -------------- //
     // main book view //
     // -------------- //
-    render_book_table(frame, &app, main[1], table_state);
+    render_book_table(frame, app, main[1], table_state);
     frame.render_widget(
+        // this will have two modes: view and edit
         Paragraph::new("Options (change title, author, genre, etc)").block(
             Block::new()
-                .title("Options")
+                .title("Properties")
                 .bold()
                 .fg(Color::Blue)
                 .borders(Borders::ALL),
@@ -119,7 +120,7 @@ fn render(frame: &mut Frame, app: &App, table_state: &mut TableState) {
     );
 }
 
-fn render_book_table(frame: &mut Frame, app: &App, area: Rect, table_state: &mut TableState) {
+fn render_book_table(frame: &mut Frame, app: &mut App, area: Rect, table_state: &mut TableState) {
     let header = Row::new(["Title", "Author", "Pages", "isOwned"])
         .style(Style::new().bold())
         .bottom_margin(1);

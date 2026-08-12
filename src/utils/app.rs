@@ -14,8 +14,7 @@ pub struct App {
 enum Screen {
     SeriesList,
     BookList,
-    BookDetails,
-    EditBook,
+    Properties,
 }
 
 impl App {
