@@ -11,7 +11,10 @@ use ratatui::{
     widgets::{Block, Borders, List, Paragraph, Row, Table, TableState},
 };
 
-use crate::utils::{app::App, library};
+use crate::utils::{
+    app::{App, Screen},
+    library,
+};
 
 mod content;
 
@@ -39,16 +42,11 @@ fn run(mut term: DefaultTerminal, app: &mut App, table_state: &mut TableState) -
 
         // KEYBINDS //
         if let Some(key) = event::read()?.as_key_press_event() {
-            match key.code {
-                KeyCode::Char('q') | KeyCode::Esc => return Ok(()),
-                KeyCode::Char('j') | KeyCode::Down => table_state.select_next(),
-                KeyCode::Char('k') | KeyCode::Up => table_state.select_previous(),
-                KeyCode::Char('l') | KeyCode::Right => table_state.select_next_column(),
-                KeyCode::Char('h') | KeyCode::Left => table_state.select_previous_column(),
-                KeyCode::Char('g') => table_state.select_first(),
-                KeyCode::Char('G') => table_state.select_last(),
-                _ => {}
-            }
+            app.on_key(key, table_state);
+        }
+
+        if app.should_quit {
+            return Ok(());
         }
     }
 }
@@ -78,17 +76,32 @@ fn render(frame: &mut Frame, app: &mut App, table_state: &mut TableState) {
         .collect();
 
     // renders the series names on the left panel
-    frame.render_widget(
-        List::new(series_list).cyan().block(
-            Block::new()
-                .bold()
-                .fg(Color::Blue)
-                .borders(Borders::ALL)
-                .title("Series"),
-        ),
-        left_panel[0],
-    );
-
+    match app.screen {
+        Screen::SeriesList => {
+            frame.render_widget(
+                List::new(series_list).style(Color::Cyan).block(
+                    Block::new()
+                        .bold()
+                        .fg(Color::Cyan)
+                        .borders(Borders::ALL)
+                        .title("Series"),
+                ),
+                left_panel[0],
+            );
+        }
+        _ => {
+            frame.render_widget(
+                List::new(series_list).style(Color::Cyan).block(
+                    Block::new()
+                        .bold()
+                        .fg(Color::Blue)
+                        .borders(Borders::ALL)
+                        .title("Series"),
+                ),
+                left_panel[0],
+            );
+        }
+    }
     // TODO: Stats block on the left panel
     frame.render_widget(
         List::new(vec!["Total Books: -", "Foo: Bar"]) // give some sample data
@@ -109,7 +122,7 @@ fn render(frame: &mut Frame, app: &mut App, table_state: &mut TableState) {
     render_book_table(frame, app, main[1], table_state);
     frame.render_widget(
         // this will have two modes: view and edit
-        Paragraph::new("Options (change title, author, genre, etc)").block(
+        Paragraph::new("Who even knows").block(
             Block::new()
                 .title("Properties")
                 .bold()
