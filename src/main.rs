@@ -7,12 +7,12 @@ use ratatui::{
     DefaultTerminal, Frame,
     layout::{Constraint, Direction::Vertical, Layout, Rect},
     style::{Color, Style, Stylize},
-    widgets::{Block, Borders, List, Paragraph, Row, Table, TableState},
+    widgets::{Block, Borders, List, ListItem, Paragraph, Row, Table, TableState},
 };
 
 use crate::utils::{
     app::{App, Screen},
-    colors::foreground_color,
+    colors::{foreground_color, selection_style},
     library,
 };
 
@@ -39,6 +39,8 @@ fn main() -> Result<()> {
 fn run(mut term: DefaultTerminal, app: &mut App, table_state: &mut TableState) -> Result<()> {
     loop {
         term.draw(|f| render(f, app, table_state))?; // render frame while passing in app state
+        // term.draw(|f| render(f))
+        // term.draw(render)
 
         // KEYBINDS //
         if let Some(key) = event::read()?.as_key_press_event() {
@@ -67,20 +69,22 @@ fn render(frame: &mut Frame, app: &mut App, table_state: &mut TableState) {
         .constraints(vec![Constraint::Percentage(75), Constraint::Percentage(25)])
         .split(main[0]);
 
-    let series_list: Vec<&str> = app
+    let series_list: Vec<ListItem> = app
         .library
         .series
         .iter()
-        .map(|s| s.title.as_str())
-        .chain(once("Standalone Books"))
+        .enumerate()
+        .map(|(i, s)| ListItem::new(s.title.to_string()).style(selection_style(i, app)))
+        .chain(once(
+            ListItem::new("Standalone Books").style(selection_style(app.library.series.len(), app)),
+        ))
         .collect();
 
     // renders the series names on the left panel
     frame.render_widget(
-        List::new(series_list).style(Color::Cyan).block(
+        List::new(series_list).style(Style::new().cyan()).block(
             Block::new()
                 .bold()
-                // .fg(Color::Blue)
                 .fg(foreground_color(Screen::SeriesList, app))
                 .borders(Borders::ALL)
                 .title("Series"),
@@ -94,7 +98,7 @@ fn render(frame: &mut Frame, app: &mut App, table_state: &mut TableState) {
     // STATIC //
     // ------- //
     frame.render_widget(
-        List::new(vec!["Total Books: -", "Foo: Bar"]) // give some sample data
+        List::new(vec!["Total Books: -", "Your most read genre is -"]) // give some sample data
             .cyan()
             .block(
                 Block::new()
@@ -110,6 +114,7 @@ fn render(frame: &mut Frame, app: &mut App, table_state: &mut TableState) {
     // main book view //
     // -------------- //
     render_book_table(frame, app, main[1], table_state);
+
     frame.render_widget(
         // this will have two modes: view and edit
         Paragraph::new("Who even knows").block(
@@ -124,7 +129,7 @@ fn render(frame: &mut Frame, app: &mut App, table_state: &mut TableState) {
 }
 
 fn render_book_table(frame: &mut Frame, app: &mut App, area: Rect, table_state: &mut TableState) {
-    let header = Row::new(["Title", "Author", "Pages", "isOwned"])
+    let header = Row::new(["Title", "Author", "Pages", "Times Read"])
         .style(Style::new().bold())
         .bottom_margin(1);
 
@@ -135,17 +140,32 @@ fn render_book_table(frame: &mut Frame, app: &mut App, area: Rect, table_state: 
             for book in &s.books {
                 rows.push(Row::new([
                     book.title.clone(),
-                    book.author.to_string(),
+                    book.author.clone(),
                     book.total_pages.to_string(),
-                    book.is_owned.to_string(),
+                    book.times_read.to_string(),
                 ]));
             }
         }
-        None => rows.push(Row::new(["err", "err", "err", "err"])),
+        None => {
+            if app.selected_series == app.library.series.len() {
+                // pull from the 'standalone_books'
+                for book in &app.library.standalone_books {
+                    rows.push(Row::new([
+                        book.title.clone(),
+                        book.author.clone(),
+                        book.total_pages.to_string(),
+                        book.times_read.to_string(),
+                    ]));
+                }
+            } else {
+                rows.push(Row::new(["err", "err", "err", "err"]))
+            }
+        }
     }
 
     let widths = [
         Constraint::Fill(2),
+        Constraint::Fill(1),
         Constraint::Fill(1),
         Constraint::Fill(1),
     ];

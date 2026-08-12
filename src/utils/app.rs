@@ -9,10 +9,11 @@ pub struct App {
     pub library: Library,
     pub selected_series: usize,
     pub selected_book: usize,
+    pub selected_option: usize, // might change type later
     pub screen: Screen,
     pub should_quit: bool,
     pub dirty: bool,
-    should_show_help: bool, // has the data changed since last save?
+    pub should_show_help: bool, // has the data changed since last save?
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -46,6 +47,7 @@ impl App {
             library,
             selected_series: 0,
             selected_book: 0,
+            selected_option: 0,
             screen: Screen::SeriesList,
             should_quit: false,
             dirty: false,
