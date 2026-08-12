@@ -5,9 +5,10 @@ use color_eyre::Result;
 use crossterm::event::{self};
 use ratatui::{
     DefaultTerminal, Frame,
-    layout::{Constraint, Direction::Vertical, Layout, Rect},
+    layout::{Alignment, Constraint, Direction::Vertical, Layout, Rect},
     style::{Color, Style, Stylize},
-    widgets::{Block, Borders, List, ListItem, Paragraph, Row, Table, TableState},
+    symbols,
+    widgets::{Block, Borders, List, ListItem, Paragraph, Row, Table, TableState, Tabs},
 };
 
 use crate::utils::{
@@ -115,17 +116,21 @@ fn render(frame: &mut Frame, app: &mut App, table_state: &mut TableState) {
     // -------------- //
     render_book_table(frame, app, main[1], table_state);
 
-    frame.render_widget(
-        // this will have two modes: view and edit
-        Paragraph::new("Who even knows").block(
-            Block::new()
-                .title("Properties")
-                .bold()
-                .fg(foreground_color(Screen::Properties, app))
-                .borders(Borders::ALL),
-        ),
-        main[2],
-    );
+    // TODO: change selected tab to follow keyboard shortcuts
+    render_tab_content(frame, main[2], app.property_tab);
+    render_tabs(frame, main[2], app);
+
+    // frame.render_widget(
+    //     // this will have two modes: view and edit
+    //     Paragraph::new("Who even knows").block(
+    //         Block::new()
+    //             .title("Properties")
+    //             .bold()
+    //             .fg(foreground_color(Screen::Properties, app))
+    //             .borders(Borders::ALL),
+    //     ),
+    //     main[2],
+    // );
 }
 
 fn render_book_table(frame: &mut Frame, app: &mut App, area: Rect, table_state: &mut TableState) {
@@ -184,4 +189,29 @@ fn render_book_table(frame: &mut Frame, app: &mut App, area: Rect, table_state: 
                 .borders(Borders::ALL),
         );
     frame.render_stateful_widget(table, area, table_state);
+}
+
+// render tabs
+fn render_tabs(frame: &mut Frame, area: Rect, app: &App) {
+    let selected_tab = app.property_tab;
+    let tabs = Tabs::new(vec!["View", "Edit"])
+        .style(foreground_color(Screen::Properties, app))
+        .highlight_style(Style::default().black().on_cyan().bold())
+        .select(selected_tab)
+        .divider(symbols::DOT)
+        .padding(" ", " ");
+    frame.render_widget(tabs, area);
+}
+
+fn render_tab_content(frame: &mut Frame, area: Rect, selected_tab: usize) {
+    let text = match selected_tab {
+        0 => "View the book twin",
+        1 => "Edit the book twin",
+        _ => unreachable!(),
+    };
+
+    let block = Paragraph::new(text)
+        .alignment(Alignment::Center)
+        .block(Block::bordered());
+    frame.render_widget(block, area);
 }

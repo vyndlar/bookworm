@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use ratatui::style::{Color, Style};
 
 use crate::utils::app::{App, Screen};

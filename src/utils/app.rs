@@ -9,7 +9,7 @@ pub struct App {
     pub library: Library,
     pub selected_series: usize,
     pub selected_book: usize,
-    pub selected_option: usize, // might change type later
+    pub property_tab: usize, // might change type later
     pub screen: Screen,
     pub should_quit: bool,
     pub dirty: bool,
@@ -47,7 +47,7 @@ impl App {
             library,
             selected_series: 0,
             selected_book: 0,
-            selected_option: 0,
+            property_tab: 0,
             screen: Screen::SeriesList,
             should_quit: false,
             dirty: false,
@@ -98,7 +98,17 @@ impl App {
                 KeyCode::Char('G') => table_state.select_last(),
                 _ => {}
             },
-            Screen::Properties => {}
+            Screen::Properties => match key.code {
+                KeyCode::Tab | KeyCode::Char('h') | KeyCode::Char('l') => {
+                    // toggle
+                    if self.property_tab == 0 {
+                        self.property_tab = 1;
+                    } else {
+                        self.property_tab = 0;
+                    }
+                }
+                _ => {}
+            },
         }
     }
 }
