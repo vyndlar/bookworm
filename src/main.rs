@@ -1,9 +1,8 @@
 mod utils;
-
 use std::iter::once;
 
 use color_eyre::Result;
-use crossterm::event::{self, KeyCode};
+use crossterm::event::{self};
 use ratatui::{
     DefaultTerminal, Frame,
     layout::{Constraint, Direction::Vertical, Layout, Rect},
@@ -13,6 +12,7 @@ use ratatui::{
 
 use crate::utils::{
     app::{App, Screen},
+    colors::foreground_color,
     library,
 };
 
@@ -76,33 +76,23 @@ fn render(frame: &mut Frame, app: &mut App, table_state: &mut TableState) {
         .collect();
 
     // renders the series names on the left panel
-    match app.screen {
-        Screen::SeriesList => {
-            frame.render_widget(
-                List::new(series_list).style(Color::Cyan).block(
-                    Block::new()
-                        .bold()
-                        .fg(Color::Cyan)
-                        .borders(Borders::ALL)
-                        .title("Series"),
-                ),
-                left_panel[0],
-            );
-        }
-        _ => {
-            frame.render_widget(
-                List::new(series_list).style(Color::Cyan).block(
-                    Block::new()
-                        .bold()
-                        .fg(Color::Blue)
-                        .borders(Borders::ALL)
-                        .title("Series"),
-                ),
-                left_panel[0],
-            );
-        }
-    }
+    frame.render_widget(
+        List::new(series_list).style(Color::Cyan).block(
+            Block::new()
+                .bold()
+                // .fg(Color::Blue)
+                .fg(foreground_color(Screen::SeriesList, app))
+                .borders(Borders::ALL)
+                .title("Series"),
+        ),
+        left_panel[0],
+    );
+
     // TODO: Stats block on the left panel
+
+    // ------- //
+    // STATIC //
+    // ------- //
     frame.render_widget(
         List::new(vec!["Total Books: -", "Foo: Bar"]) // give some sample data
             .cyan()
@@ -126,7 +116,7 @@ fn render(frame: &mut Frame, app: &mut App, table_state: &mut TableState) {
             Block::new()
                 .title("Properties")
                 .bold()
-                .fg(Color::Blue)
+                .fg(foreground_color(Screen::Properties, app))
                 .borders(Borders::ALL),
         ),
         main[2],
@@ -170,7 +160,7 @@ fn render_book_table(frame: &mut Frame, app: &mut App, area: Rect, table_state: 
             Block::new()
                 .title("Books")
                 .bold()
-                .fg(Color::Blue)
+                .fg(foreground_color(Screen::BookList, app))
                 .borders(Borders::ALL),
         );
     frame.render_stateful_widget(table, area, table_state);
