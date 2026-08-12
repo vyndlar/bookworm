@@ -13,9 +13,13 @@ pub fn foreground_color(caller: Screen, app: &App) -> Color {
 // style for selected option (book, series) to highlight
 // To improve readability
 pub fn selection_style(caller: usize, app: &App) -> Style {
-    if caller == app.selected_book {
+    // basically: if selected :)
+    if (caller == app.library.series.len() && app.selected_series == app.library.series.len())
+        || caller == app.selected_series
+    {
         Style::new().cyan().on_red()
     } else {
+        // if not selected
         Style::new().blue().on_black()
     }
 }
