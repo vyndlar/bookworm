@@ -3,7 +3,7 @@ mod utils;
 use std::iter::once;
 
 use color_eyre::Result;
-use crossterm::event::{self, Event};
+use crossterm::event::{self, Event, KeyCode};
 use ratatui::{
     DefaultTerminal, Frame,
     layout::{Constraint, Direction::Vertical, Layout, Rect},
@@ -36,8 +36,19 @@ fn main() -> Result<()> {
 fn run(mut term: DefaultTerminal, app: &App, table_state: &mut TableState) -> Result<()> {
     loop {
         term.draw(|f| render(f, app, table_state))?; // render frame while passing in app state
-        if matches!(event::read()?, Event::Key(_)) {
-            break Ok(());
+
+        // KEYBINDS //
+        if let Some(key) = event::read()?.as_key_press_event() {
+            match key.code {
+                KeyCode::Char('q') | KeyCode::Esc => return Ok(()),
+                KeyCode::Char('j') | KeyCode::Down => table_state.select_next(),
+                KeyCode::Char('k') | KeyCode::Up => table_state.select_previous(),
+                KeyCode::Char('l') | KeyCode::Right => table_state.select_next_column(),
+                KeyCode::Char('h') | KeyCode::Left => table_state.select_previous_column(),
+                KeyCode::Char('g') => table_state.select_first(),
+                KeyCode::Char('G') => table_state.select_last(),
+                _ => {}
+            }
         }
     }
 }
@@ -95,16 +106,6 @@ fn render(frame: &mut Frame, app: &App, table_state: &mut TableState) {
     // -------------- //
     // main book view //
     // -------------- //
-    // frame.render_widget(
-    //     Paragraph::new("Turn ts into a table").block(
-    //         Block::new()
-    //             .title("Books")
-    //             .bold()
-    //             .fg(Color::Blue)
-    //             .borders(Borders::ALL),
-    //     ),
-    //     main[1],
-    // );
     render_book_table(frame, &app, main[1], table_state);
     frame.render_widget(
         Paragraph::new("Options (change title, author, genre, etc)").block(
@@ -149,9 +150,8 @@ fn render_book_table(frame: &mut Frame, app: &App, area: Rect, table_state: &mut
         .header(header)
         .column_spacing(1)
         .style(Color::White)
-        .row_highlight_style(Style::new().on_black().bold())
-        .column_highlight_style(Color::Green)
         .highlight_symbol("> ")
+        .row_highlight_style(Style::new().on_blue().black())
         .block(
             Block::new()
                 .title("Books")
