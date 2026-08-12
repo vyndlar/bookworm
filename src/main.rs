@@ -12,7 +12,7 @@ use ratatui::{
 
 use crate::utils::{
     app::{App, Screen},
-    colors::{foreground_color, selection_style},
+    colors::{foreground_color, selection_style, table_style},
     library,
 };
 
@@ -175,7 +175,7 @@ fn render_book_table(frame: &mut Frame, app: &mut App, area: Rect, table_state: 
         .column_spacing(1)
         .style(Color::White)
         .highlight_symbol("> ")
-        .row_highlight_style(Style::new().on_blue().black())
+        .row_highlight_style(table_style(app))
         .block(
             Block::new()
                 .title("Books")
